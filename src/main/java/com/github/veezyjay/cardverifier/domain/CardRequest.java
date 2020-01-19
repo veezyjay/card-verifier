@@ -18,4 +18,8 @@ public class CardRequest {
     @Column(name = "requested_at")
     @CreationTimestamp
     private LocalDateTime requestedAt;
+
+    @ManyToOne(cascade = {CascadeType.REFRESH, CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH})
+    @JoinColumn(name = "card_id")
+    private Card card;
 }

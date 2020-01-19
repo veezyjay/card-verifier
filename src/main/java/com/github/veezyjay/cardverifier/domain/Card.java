@@ -1,11 +1,14 @@
 package com.github.veezyjay.cardverifier.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
@@ -29,10 +32,21 @@ public class Card {
     @CreationTimestamp
     private LocalDateTime addedAt;
 
+    @JsonIgnore
+    @OneToMany(mappedBy = "card", cascade = CascadeType.ALL)
+    private List<CardRequest> requests;
+
     public Card(String cardNumber, String cardType, String scheme, String bank) {
         this.cardNumber = cardNumber;
         this.cardType = cardType;
         this.scheme = scheme;
         this.bank = bank;
+    }
+
+    public void addRequest(CardRequest request) {
+        if (this.requests == null) {
+            this.requests = new ArrayList<>();
+        }
+        this.requests.add(request);
     }
 }
