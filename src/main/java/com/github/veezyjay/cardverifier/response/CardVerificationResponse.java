@@ -5,6 +5,9 @@ import lombok.Data;
 
 import java.util.Map;
 
+/**
+ * Represents the response structure when a card verification request is being made
+ */
 @Data
 @Builder
 public class CardVerificationResponse {
