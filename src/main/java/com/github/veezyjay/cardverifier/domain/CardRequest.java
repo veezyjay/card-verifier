@@ -7,6 +7,9 @@ import org.hibernate.annotations.CreationTimestamp;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
+/**
+ * Represents a single request for verification made for a particular card
+ */
 @Entity
 @Data
 @NoArgsConstructor

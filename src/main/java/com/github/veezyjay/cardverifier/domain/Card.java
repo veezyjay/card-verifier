@@ -10,6 +10,11 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+
+/**
+ * Represents a card that could be verified
+ * A card can have many requests for verification
+ */
 @Entity
 @Data
 @NoArgsConstructor
