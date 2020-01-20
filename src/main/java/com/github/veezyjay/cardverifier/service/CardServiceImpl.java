@@ -5,9 +5,14 @@ import com.github.veezyjay.cardverifier.domain.CardData;
 import com.github.veezyjay.cardverifier.domain.CardRequest;
 import com.github.veezyjay.cardverifier.exception.CardNotFoundException;
 import com.github.veezyjay.cardverifier.repository.CardRepository;
+import com.github.veezyjay.cardverifier.repository.CardRequestRepository;
+import com.github.veezyjay.cardverifier.response.CardStatsResponse;
 import com.github.veezyjay.cardverifier.response.CardVerificationResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
@@ -17,18 +22,22 @@ import org.springframework.web.client.RestTemplate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @Slf4j
 public class CardServiceImpl implements CardService {
     private RestTemplate restTemplate;
     private CardRepository cardRepository;
+    private CardRequestRepository cardRequestRepository;
     private String binListApiUrl;
 
     public CardServiceImpl(RestTemplate restTemplate, CardRepository cardRepository,
+                           CardRequestRepository cardRequestRepository,
                            @Value("${binlist.api.url}") String binListApiUrl) {
         this.restTemplate = restTemplate;
         this.cardRepository = cardRepository;
+        this.cardRequestRepository = cardRequestRepository;
         this.binListApiUrl = binListApiUrl;
     }
 
@@ -73,5 +82,34 @@ public class CardServiceImpl implements CardService {
         payload.put("type", theCard.getCardType());
         payload.put("bank", theCard.getBank());
         return CardVerificationResponse.builder().success(true).payload(payload).build();
+    }
+
+    /**
+     * Fetches all requests being made to every card, and carries out pagination based on the start and limit parameters
+     * @param start, representing the page to start from
+     * @param limit, represents the maximum size of each page to be returned
+     * @return total number of requests made, the pagination arguments, and data about each card
+     */
+    @Override
+    public CardStatsResponse getNumberOfHits(int start, int limit) {
+        Pageable pageable = PageRequest.of(start - 1, limit);
+        Slice<Map<String, Long>> pagedResult = cardRequestRepository.getNumberOfHits(pageable);
+        Map<String, Long> payload = new ConcurrentHashMap<>();
+
+        if (pagedResult.hasContent()) {
+            for (Map<String, Long> cardStat : pagedResult) {
+                payload.put(String.valueOf(cardStat.get("cardNumber")), cardStat.get("count"));
+            }
+        }
+
+        long size = cardRequestRepository.findAll().size();
+        return CardStatsResponse
+                .builder()
+                .success(true)
+                .start(start)
+                .limit(limit)
+                .size(size)
+                .payload(payload)
+                .build();
     }
 }
