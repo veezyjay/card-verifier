@@ -52,6 +52,7 @@ public class Card {
         if (this.requests == null) {
             this.requests = new ArrayList<>();
         }
+        request.setCard(this);
         this.requests.add(request);
     }
 }
