@@ -26,7 +26,7 @@ public class CardServiceImpl implements CardService {
     private String binListApiUrl;
 
     public CardServiceImpl(RestTemplate restTemplate, CardRepository cardRepository,
-                           @Value("${binlist.api.url") String binListApiUrl) {
+                           @Value("${binlist.api.url}") String binListApiUrl) {
         this.restTemplate = restTemplate;
         this.cardRepository = cardRepository;
         this.binListApiUrl = binListApiUrl;
@@ -46,7 +46,6 @@ public class CardServiceImpl implements CardService {
         Optional<Card> cardOptional = cardRepository.findByCardNumber(cardNumber);
         if (cardOptional.isEmpty()) {
             CardData cardData;
-
             try {
                 cardData = restTemplate.getForObject(binListApiUrl + cardNumber, CardData.class);
             } catch (HttpClientErrorException | HttpServerErrorException e) {
