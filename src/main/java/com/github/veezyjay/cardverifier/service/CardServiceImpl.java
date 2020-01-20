@@ -92,6 +92,9 @@ public class CardServiceImpl implements CardService {
      */
     @Override
     public CardStatsResponse getNumberOfHits(int start, int limit) {
+        if (start < 1 || limit < 1) {
+            throw new IllegalArgumentException("start and limit must both be greater than zero");
+        }
         Pageable pageable = PageRequest.of(start - 1, limit);
         Slice<Map<String, Long>> pagedResult = cardRequestRepository.getNumberOfHits(pageable);
         Map<String, Long> payload = new ConcurrentHashMap<>();
