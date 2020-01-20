@@ -1,6 +1,7 @@
 package com.github.veezyjay.cardverifier.controller;
 
 import com.github.veezyjay.cardverifier.exception.CardNotFoundException;
+import com.github.veezyjay.cardverifier.response.CardStatsResponse;
 import com.github.veezyjay.cardverifier.response.CardVerificationResponse;
 import com.github.veezyjay.cardverifier.service.CardService;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,6 +17,7 @@ import org.springframework.web.util.NestedServletException;
 import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -66,6 +68,30 @@ class CardControllerTest {
 
         try {
             mockMvc.perform(get("/card-scheme/verify/{cardNumber}", "abc456"));
+        } catch (NestedServletException e) {
+            assertEquals(IllegalArgumentException.class, e.getRootCause().getClass());
+        }
+    }
+
+    @Test
+    void getNumberOfHitsWithValidArguments() throws Exception {
+        CardStatsResponse response = CardStatsResponse.builder().start(1).limit(5)
+                .size(5).success(true).payload(new HashMap<>()).build();
+
+        when(cardService.getNumberOfHits(anyInt(), anyInt())).thenReturn(response);
+
+        mockMvc.perform(get("/card-scheme/stats?start=1&limit=5"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.payload").exists());
+    }
+
+    @Test
+    void handleHitsRequestWithInvalidArguments() throws Exception {
+        when(cardService.getNumberOfHits(anyInt(), anyInt())).thenThrow(IllegalArgumentException.class);
+
+        try {
+            mockMvc.perform(get("/card-scheme/stats?start=-5&limit=-4"));
         } catch (NestedServletException e) {
             assertEquals(IllegalArgumentException.class, e.getRootCause().getClass());
         }
