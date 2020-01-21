@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/card-scheme")
+@CrossOrigin
 public class CardController {
     private CardService cardService;
 
