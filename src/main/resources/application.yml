@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    url: jdbc:mysql://us-cdbr-iron-east-05.cleardb.net/heroku_650369fa1022c26?reconnect=true
+    username: b3c008c81e99f1
+    password: 2b2c341a
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+binlist:
+  api:
+    url: https://lookup.binlist.net/
