@@ -10,3 +10,5 @@ spring:
 binlist:
   api:
     url: https://lookup.binlist.net/
+server:
+  port: ${PORT:9000}
